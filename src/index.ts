@@ -1,9 +1,26 @@
 import  express from 'express';
+import SubjectsRouter from './routes/subjects';
+import cors from 'cors';
 
 const app=express();
 const PORT=8000;
 
 app.use(express.json());
+
+if(!process.env.FRONTEND_URL){
+    throw new Error("FRONTEND_URL is not defined in env variables")
+}
+
+app.use(cors({
+    origin:process.env.FRONTEND_URL,
+    methods:['GET','POST','PUT','DELETE'],
+    credentials:true,
+     
+}))
+
+// routers
+
+app.use(`/api/subjects`,SubjectsRouter)
 
 app.get('/',(req,res)=>{
     res.send("hello to classroom API")
