@@ -16,12 +16,14 @@ router.get('/', async (req,res)=>{
     try {
         const {search,department,page=1,limit=10} = req.query;
 
-        const currentPage=Math.max(1,+page);
-        const  limitPerpage=Math.max(1,+limit);
+        const currentPage= Math.max(1,parseInt(String(page),10) || 1);
+        const limitPerpage= Math.min(Math.max(1,parseInt(String(limit),10) || 10),100);
+
+       
 
         const offset=(currentPage-1)*limitPerpage;
 
-        const filterConditions = [];
+        const filterConditions = [];  
 
         // if serach query exists , filter by subject name or code 
         if (search) {
@@ -36,9 +38,10 @@ router.get('/', async (req,res)=>{
         // if department filter exists , match department name
 
         if(department){
-            filterConditions.push(
-                ilike(departments.name, `%${department}%`)
-            );
+           const deptPattern=`%${String(department).replace(/[%_]/g, '\\$&')}%`; // Escape % and _ characters
+           filterConditions.push(ilike(departments.name,deptPattern) );
+           
+            
         }
 
         // Combine all filter conditions using AND if any exist
